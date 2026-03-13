@@ -6,7 +6,10 @@ from typing import Awaitable, Callable, Optional
 import aiofiles
 
 from src.infrastructure.external.ai_client import AIClient
-from src.services.ai_request_compat import build_responses_input
+from src.services.ai_request_compat import (
+    build_responses_input,
+    call_with_param_compat,
+)
 from src.services.ai_response_parser import extract_ai_response_content
 
 # The meta-prompt to instruct the AI
@@ -89,7 +92,10 @@ async def generate_criteria(
         if ai_client.settings.enable_thinking:
             request_params["extra_body"] = {"enable_thinking": False}
 
-        response = await ai_client.client.responses.create(**request_params)
+        response = await call_with_param_compat(
+            ai_client.client.responses.create, request_params
+        )
+
         generated_text = extract_ai_response_content(response)
         print("AI已成功生成内容。")
         

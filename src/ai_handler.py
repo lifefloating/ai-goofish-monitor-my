@@ -37,6 +37,7 @@ from src.services.ai_response_parser import (
 from src.services.ai_request_compat import (
     add_json_text_format,
     build_responses_input,
+    call_with_param_compat,
     is_json_output_unsupported_error,
 )
 from src.services.notification_service import build_notification_service
@@ -333,7 +334,7 @@ async def get_ai_analysis(product_data, image_paths=None, prompt_text=""):
             current_temperature = 0.1 if attempt == 0 else 0.05  # 重试时使用更低的温度
 
             from src.config import get_ai_request_params
-            
+
             # 构建请求参数，根据ENABLE_RESPONSE_FORMAT决定是否启用结构化 JSON 输出
             request_params = {
                 "model": MODEL_NAME,
@@ -345,10 +346,12 @@ async def get_ai_analysis(product_data, image_paths=None, prompt_text=""):
                 request_params,
                 use_response_format,
             )
-            
-            response = await client.responses.create(
-                **get_ai_request_params(**request_params)
+
+            response = await call_with_param_compat(
+                client.responses.create,
+                get_ai_request_params(**request_params),
             )
+
             ai_response_content = extract_ai_response_content(response)
 
             if AI_DEBUG_MODE:

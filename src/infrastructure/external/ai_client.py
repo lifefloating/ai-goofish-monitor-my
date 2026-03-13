@@ -18,6 +18,7 @@ from src.infrastructure.config.env_manager import env_manager
 from src.services.ai_request_compat import (
     add_json_text_format,
     build_responses_input,
+    call_with_param_compat,
     is_json_output_unsupported_error,
 )
 from src.services.ai_response_parser import extract_ai_response_content
@@ -142,8 +143,12 @@ class AIClient:
                 request_params["extra_body"] = {"enable_thinking": False}
 
             try:
-                response = await self.client.responses.create(**request_params)
+                response = await call_with_param_compat(
+                    self.client.responses.create, request_params
+                )
             except Exception as exc:
+                # JSON 输出检查放在 param 检查之后，因为 call_with_param_compat
+                # 已内部处理了参数兼容问题，此处只需处理 JSON 格式兼容
                 if use_response_format and is_json_output_unsupported_error(exc):
                     use_response_format = False
                     print("当前模型不支持结构化 JSON 输出，正在自动重试并移除该参数")
