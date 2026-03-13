@@ -71,14 +71,18 @@ def is_json_output_unsupported_error(error: Exception) -> bool:
 def is_param_unsupported_error(error: Exception) -> bool:
     """识别中转站不支持某些可选请求参数的错误（如 temperature）。
 
-    同时要求错误信息包含通用错误标记和至少一个可选参数名，
+    对于中文标记 "请求参数错误"，该标记本身足够具体，无需错误信息中包含参数名
+    （部分中转站返回空的参数名）。对于通用英文标记，仍要求同时包含可选参数名，
     避免误匹配其他类型的 "invalid parameter" 错误。
     """
     message = str(error).lower()
     has_marker = any(marker.lower() in message for marker in UNSUPPORTED_PARAM_MARKERS)
     if not has_marker:
         return False
-    # 必须同时提到某个可选参数名，避免误匹配 model 等核心参数错误
+    # "请求参数错误" 足够具体，中文 API 代理常省略参数名，单独匹配即可
+    if "请求参数错误" in str(error):
+        return True
+    # 英文标记较通用，必须同时提到某个可选参数名，避免误匹配 model 等核心参数错误
     return any(p in message for p in _OPTIONAL_PARAMS)
 
 
