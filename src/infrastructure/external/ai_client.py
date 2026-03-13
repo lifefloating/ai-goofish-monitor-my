@@ -125,6 +125,12 @@ class AIClient:
 
     async def _call_ai(self, messages: List[Dict]) -> str:
         """调用 AI API"""
+        # 调试日志：打印 AI 配置
+        _key = self.settings.api_key or ""
+        masked_key = _key[:8] + "****" + _key[-4:] if len(_key) > 12 else "***"
+        print(f"[AI DEBUG] base_url={self.settings.base_url}, model={self.settings.model_name}, api_key={masked_key}")
+        print(f"[AI DEBUG] enable_response_format={self.settings.enable_response_format}, enable_thinking={self.settings.enable_thinking}")
+
         use_response_format = self.settings.enable_response_format
         max_attempts = 2 if use_response_format else 1
 

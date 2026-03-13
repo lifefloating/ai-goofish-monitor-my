@@ -84,6 +84,10 @@ async def generate_criteria(
 
     await _report_progress(progress_callback, "llm", "正在调用 AI 生成分析标准。")
     print("正在调用AI生成新的分析标准，请稍候...")
+    # 调试日志：打印 AI 配置
+    _key = ai_client.settings.api_key or ""
+    masked_key = _key[:8] + "****" + _key[-4:] if len(_key) > 12 else "***"
+    print(f"[AI DEBUG] base_url={ai_client.settings.base_url}, model={ai_client.settings.model_name}, api_key={masked_key}")
     try:
         request_params = {
             "model": ai_client.settings.model_name,

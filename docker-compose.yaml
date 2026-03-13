@@ -1,8 +1,7 @@
 services:
   app:
-    image: ghcr.io/usagi-org/ai-goofish:latest
+    build: .
     container_name: ai-goofish-monitor-app
-    pull_policy: always
     init: true
     ports:
       - "8000:8000"

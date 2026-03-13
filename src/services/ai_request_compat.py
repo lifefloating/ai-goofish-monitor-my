@@ -140,6 +140,21 @@ def get_optional_params_in(params: Dict[str, Any]) -> List[str]:
     return [p for p in _OPTIONAL_PARAMS if p in params]
 
 
+def _log_request_params(params: Dict[str, Any]) -> None:
+    """打印请求参数摘要，用于调试 API 调用。"""
+    summary = {}
+    for k, v in params.items():
+        if k == "input":
+            # input 可能含 base64 图片，只打印摘要
+            if isinstance(v, list):
+                summary[k] = f"[{len(v)} 条消息]"
+            else:
+                summary[k] = str(v)[:100] + "..."
+        else:
+            summary[k] = v
+    print(f"[AI DEBUG] 请求参数: {summary}")
+
+
 async def call_with_param_compat(
     create_fn: Callable[..., Coroutine],
     request_params: Dict[str, Any],
@@ -157,9 +172,13 @@ async def call_with_param_compat(
     request_params = strip_unsupported_params(request_params)
     optional_in_request = get_optional_params_in(request_params)
 
+    # 调试日志：打印请求参数（input 内容截断避免刷屏）
+    _log_request_params(request_params)
+
     try:
         return await create_fn(**request_params)
     except Exception as exc:
+        print(f"[AI DEBUG] is_param_unsupported_error={is_param_unsupported_error(exc)}, optional_in_request={optional_in_request}")
         if not (is_param_unsupported_error(exc) and optional_in_request):
             print(f"AI API 调用失败 {format_ai_error_detail(exc)}")
             raise
