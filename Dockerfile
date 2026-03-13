@@ -33,7 +33,11 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 
-RUN apt-get update \
+# 使用国内镜像加速 Playwright 浏览器下载
+ENV PLAYWRIGHT_DOWNLOAD_HOST=https://npmmirror.com/mirrors/playwright
+# 使用阿里云镜像加速 apt 依赖下载
+RUN sed -i 's|deb.debian.org|mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources \
+    && apt-get update \
     && apt-get install -y --no-install-recommends \
         tzdata \
         tini \
