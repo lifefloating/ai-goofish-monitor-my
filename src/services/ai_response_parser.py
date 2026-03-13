@@ -49,7 +49,15 @@ def parse_ai_response_json(content: str) -> dict:
         if json_end_index <= json_start_index:
             raise
         json_str = cleaned[json_start_index : json_end_index + 1]
-        return json.loads(json_str)
+        try:
+            return json.loads(json_str)
+        except json.JSONDecodeError:
+            # AI returned multiple JSON objects — parse only the first one
+            decoder = json.JSONDecoder()
+            result, _ = decoder.raw_decode(json_str)
+            if isinstance(result, dict):
+                return result
+            raise
 
 
 def _coerce_content_parts(content: Any) -> str:

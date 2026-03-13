@@ -1,4 +1,6 @@
-# 闲鱼智能监控机器人
+# 闲鱼智能监控机器人（个人使用版）
+
+> **说明：** 这是我的个人使用版本，基于 [Usagi-org/ai-goofish-monitor](https://github.com/Usagi-org/ai-goofish-monitor) 进行修改。已在阿里云 ECS 上完成测试部署，修复了部署过程中遇到的一些问题和 Bug，现在可以直接顺滑启动运行。后续可能会根据个人需求进行一些优化和调整。
 
 [English README](README_EN.md)
 
