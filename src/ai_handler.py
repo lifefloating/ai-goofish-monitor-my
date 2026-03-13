@@ -38,6 +38,7 @@ from src.services.ai_request_compat import (
     add_json_text_format,
     build_responses_input,
     call_with_param_compat,
+    format_ai_error_detail,
     is_json_output_unsupported_error,
 )
 from src.services.notification_service import build_notification_service
@@ -391,7 +392,7 @@ async def get_ai_analysis(product_data, image_paths=None, prompt_text=""):
                 safe_print(
                     "   [AI分析] 当前模型不支持结构化 JSON 输出，后续重试将自动禁用该参数。"
                 )
-            safe_print(f"   [AI分析] 第{attempt + 1}次尝试AI调用失败: {e}")
+            safe_print(f"   [AI分析] 第{attempt + 1}次尝试AI调用失败 {format_ai_error_detail(e)}")
             if attempt < max_retries - 1:
                 safe_print(f"   [AI分析] 准备第{attempt + 2}次重试...")
                 continue

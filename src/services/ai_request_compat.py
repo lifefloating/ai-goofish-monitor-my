@@ -1,5 +1,6 @@
 """AI 请求兼容性辅助逻辑。"""
 
+import traceback
 import threading
 from typing import Any, Callable, Coroutine, Dict, Iterable, List, Optional, Set
 
@@ -114,6 +115,22 @@ def reset_unsupported_params() -> None:
         _unsupported_params.clear()
 
 
+def format_ai_error_detail(exc: Exception) -> str:
+    """格式化 AI API 错误的详细信息，用于增强日志输出。
+
+    提取错误类型、HTTP 状态码、API 错误 body 和完整堆栈。
+    """
+    parts = [f"[{type(exc).__name__}]: {exc}"]
+    status_code = getattr(exc, "status_code", None)
+    if status_code is not None:
+        parts.append(f"  HTTP 状态码: {status_code}")
+    body = getattr(exc, "body", None)
+    if body is not None:
+        parts.append(f"  API 错误详情: {body}")
+    parts.append(f"  完整堆栈:\n{traceback.format_exc()}")
+    return "\n".join(parts)
+
+
 def get_optional_params_in(params: Dict[str, Any]) -> List[str]:
     """返回 params 中存在的可选参数名列表。"""
     return [p for p in _OPTIONAL_PARAMS if p in params]
@@ -140,6 +157,7 @@ async def call_with_param_compat(
         return await create_fn(**request_params)
     except Exception as exc:
         if not (is_param_unsupported_error(exc) and optional_in_request):
+            print(f"AI API 调用失败 {format_ai_error_detail(exc)}")
             raise
         # 尝试精确识别不支持的参数
         specific = detect_unsupported_param_name(exc, optional_in_request)

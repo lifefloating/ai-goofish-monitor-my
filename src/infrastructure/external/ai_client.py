@@ -19,6 +19,7 @@ from src.services.ai_request_compat import (
     add_json_text_format,
     build_responses_input,
     call_with_param_compat,
+    format_ai_error_detail,
     is_json_output_unsupported_error,
 )
 from src.services.ai_response_parser import extract_ai_response_content
@@ -102,7 +103,7 @@ class AIClient:
             response = await self._call_ai(messages)
             return self._parse_response(response)
         except Exception as e:
-            print(f"AI 分析失败: {e}")
+            print(f"AI 分析失败 {format_ai_error_detail(e)}")
             return None
 
     def _build_messages(self, product_data: Dict, image_paths: List[str], prompt_text: str) -> List[Dict]:
@@ -154,6 +155,7 @@ class AIClient:
                     print("当前模型不支持结构化 JSON 输出，正在自动重试并移除该参数")
                     if attempt < max_attempts - 1:
                         continue
+                print(f"AI API 调用失败 {format_ai_error_detail(exc)}")
                 raise
 
             return extract_ai_response_content(response)

@@ -9,6 +9,7 @@ from src.infrastructure.external.ai_client import AIClient
 from src.services.ai_request_compat import (
     build_responses_input,
     call_with_param_compat,
+    format_ai_error_detail,
 )
 from src.services.ai_response_parser import extract_ai_response_content
 
@@ -105,7 +106,7 @@ async def generate_criteria(
         
         return generated_text.strip()
     except Exception as e:
-        print(f"调用 OpenAI API 时出错: {e}")
+        print(f"调用 OpenAI API 时出错 {format_ai_error_detail(e)}")
         raise e
 
 
